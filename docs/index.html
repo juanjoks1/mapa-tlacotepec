@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seguimiento Comunitario · Tlacotepec de Benito Juárez</title>
+<style>
+  :root{
+    --bg: #F6F4EF;
+    --panel: #FFFFFF;
+    --ink: #1E2A2E;
+    --ink-soft: #5B6B6E;
+    --line: #DDD8CC;
+    --teal: #1F6F5C;
+    --teal-dark: #143F35;
+    --clay: #C1573B;
+    --gridblue: #6B7B8C;
+
+    --ageb-0094: #3E6FA8; /* azul */
+    --ageb-0183: #B0463C; /* rojo */
+    --ageb-0198: #4C8B5A; /* verde */
+    --ageb-0200: #C99A2E; /* amarillo */
+    --ageb-0215: #7A5EA8; /* morado */
+    --ageb-022A: #B0459A; /* magenta */
+    --ageb-0268: #D97DA8; /* rosa */
+    --ageb-0338: #D97DA8;
+    --ageb-0342: #D97DA8;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family: "Iowan Old Style","Palatino Linotype", Georgia, serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .ui{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  }
+  .mono{
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    letter-spacing: 0.02em;
+  }
+
+  header{
+    padding: 22px 18px 16px;
+    background: var(--teal-dark);
+    color: #F4F1E8;
+    position: sticky; top:0; z-index: 20;
+  }
+  .headwrap{
+    max-width: 980px; margin: 0 auto;
+    display:flex; align-items:center; gap:14px;
+  }
+  .signature{
+    display:grid;
+    grid-template-columns: repeat(3, 9px);
+    grid-template-rows: repeat(3, 9px);
+    gap:3px;
+    flex-shrink:0;
+  }
+  .signature span{ display:block; border-radius:2px; }
+  header h1{
+    font-family: "Iowan Old Style","Palatino Linotype", Georgia, serif;
+    font-size: 1.28rem;
+    margin:0;
+    font-weight:600;
+    line-height:1.2;
+  }
+  header p{
+    margin:2px 0 0;
+    font-size:0.8rem;
+    opacity:0.75;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+
+  nav.tabs{
+    max-width: 980px; margin: 12px auto 0;
+    display:flex; gap:6px;
+    padding: 0 18px;
+    overflow-x:auto;
+  }
+  nav.tabs button{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size:0.86rem;
+    font-weight:600;
+    padding:8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(244,241,232,0.25);
+    background: transparent;
+    color: rgba(244,241,232,0.65);
+    cursor:pointer;
+    white-space:nowrap;
+    transition: all .15s ease;
+  }
+  nav.tabs button.active{
+    background: #F4F1E8;
+    color: var(--teal-dark);
+    border-color: transparent;
+  }
+
+  main{
+    max-width: 980px; margin: 0 auto;
+    padding: 20px 18px 80px;
+  }
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  h2.section-title{
+    font-family: "Iowan Old Style","Palatino Linotype", Georgia, serif;
+    font-size: 1.4rem;
+    margin: 4px 0 4px;
+    color: var(--teal-dark);
+  }
+  .section-sub{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink-soft);
+    font-size:0.88rem;
+    margin: 0 0 18px;
+  }
+
+  /* AGEB grid */
+  .ageb-grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap:10px;
+  }
+  .ageb-card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px 12px 10px;
+    cursor:pointer;
+    transition: transform .12s ease, box-shadow .12s ease;
+    position:relative;
+    overflow:hidden;
+  }
+  .ageb-card:hover{ transform: translateY(-2px); box-shadow: 0 6px 16px rgba(20,63,53,0.1); }
+  .ageb-card::before{
+    content:"";
+    position:absolute; left:0; top:0; bottom:0; width:5px;
+    background: var(--c);
+  }
+  .ageb-card .code{
+    font-family: "SF Mono","Menlo",monospace;
+    font-size: 1.1rem;
+    font-weight:700;
+    color: var(--ink);
+  }
+  .ageb-card .loc{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    margin-bottom: 6px;
+  }
+  .ageb-card .stats{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.76rem;
+    color: var(--ink-soft);
+    margin-top:8px;
+    line-height:1.5;
+  }
+  .ageb-card .badges{
+    display:flex; gap:5px; margin-top:8px; flex-wrap:wrap;
+  }
+  .badge{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size:0.68rem;
+    font-weight:700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #F0EEE5;
+    color: var(--ink-soft);
+  }
+  .badge.cr{ background:#FBE7E2; color:#9C3B24; }
+  .badge.em{ background:#EFE6F7; color:#5E3F8C; }
+  .badge.ns{ background:#E3F0E5; color:#2F6B3C; }
+
+  .totals-strip{
+    display:flex; gap:10px; margin: 14px 0 22px; flex-wrap:wrap;
+  }
+  .total-pill{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--panel); border:1px solid var(--line);
+    border-radius: 10px; padding: 10px 14px;
+    font-size:0.78rem; color:var(--ink-soft);
+    flex: 1; min-width:120px;
+  }
+  .total-pill b{
+    display:block; font-size:1.3rem; color: var(--teal-dark);
+    font-family: "Iowan Old Style", Georgia, serif;
+  }
+
+  /* Forms */
+  .card{
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  label{
+    display:block;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.76rem;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    color: var(--ink-soft);
+    margin: 12px 0 5px;
+  }
+  label:first-child{ margin-top:0; }
+  select, input[type=text], input[type=date], textarea{
+    width:100%;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size:0.92rem;
+    padding: 9px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #FCFBF8;
+    color: var(--ink);
+  }
+  textarea{ min-height:60px; resize:vertical; }
+  .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+  @media (max-width:520px){ .row2{ grid-template-columns:1fr; } }
+
+  .chip-select{
+    display:flex; flex-wrap:wrap; gap:7px;
+  }
+  .chip{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size:0.82rem;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: #FCFBF8;
+    cursor:pointer;
+    color: var(--ink-soft);
+    user-select:none;
+  }
+  .chip.on{
+    background: var(--teal);
+    border-color: var(--teal);
+    color: #fff;
+    font-weight:600;
+  }
+
+  .btn{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-weight:700;
+    font-size:0.88rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+    border:none;
+    background: var(--teal);
+    color:#fff;
+    cursor:pointer;
+    margin-top:14px;
+  }
+  .btn:hover{ background: var(--teal-dark); }
+  .btn.ghost{
+    background:transparent; color:var(--clay); border:1px solid var(--clay);
+    padding:5px 12px; font-size:0.74rem; margin-top:0;
+  }
+
+  .marker-list{ margin-top:8px; }
+  .marker-item{
+    display:flex; justify-content:space-between; align-items:flex-start;
+    gap:10px;
+    padding: 10px 0;
+    border-top: 1px solid var(--line);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .marker-item:first-child{ border-top:none; }
+  .marker-item .m-left{ font-size:0.88rem; }
+  .marker-item .m-tag{
+    font-size:0.68rem; font-weight:700; text-transform:uppercase;
+    letter-spacing:0.04em;
+    padding: 2px 7px; border-radius:999px; margin-right:6px;
+  }
+  .m-tag.cr{ background:#FBE7E2; color:#9C3B24; }
+  .m-tag.em{ background:#EFE6F7; color:#5E3F8C; }
+  .m-tag.ns{ background:#E3F0E5; color:#2F6B3C; }
+  .marker-item .m-meta{ color:var(--ink-soft); font-size:0.78rem; margin-top:2px; }
+
+  .campaign-item{
+    border-top:1px solid var(--line);
+    padding: 14px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  .campaign-item:first-child{ border-top:none; }
+  .campaign-item h3{
+    font-family:"Iowan Old Style", Georgia, serif;
+    margin:0 0 4px; font-size:1.1rem; color:var(--teal-dark);
+  }
+  .campaign-item .c-date{ color:var(--ink-soft); font-size:0.82rem; margin-bottom:8px;}
+  .tag-row{ display:flex; flex-wrap:wrap; gap:5px; margin: 4px 0; }
+  .tag-row .tg{
+    font-size:0.72rem; background:#F0EEE5; color:var(--ink-soft);
+    padding:2px 8px; border-radius:999px;
+  }
+  .c-notes{ font-size:0.84rem; color:var(--ink-soft); margin-top:6px; font-style:italic; }
+
+  .patient-card{
+    border-top:1px solid var(--line);
+    padding: 12px 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    display:flex; justify-content:space-between; gap:10px;
+  }
+  .patient-card:first-child{ border-top:none; }
+  .patient-card .p-name{ font-weight:700; font-size:0.94rem; }
+  .patient-card .p-meta{ color:var(--ink-soft); font-size:0.8rem; margin-top:2px; line-height:1.5;}
+  .patient-card .p-right{ text-align:right; flex-shrink:0; }
+
+  .empty{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: var(--ink-soft); font-size:0.86rem;
+    padding: 20px; text-align:center;
+    border: 1px dashed var(--line); border-radius:10px;
+  }
+
+  .save-note{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size:0.72rem; color:var(--ink-soft);
+    text-align:center; margin-top:24px; opacity:0.7;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="headwrap">
+    <div class="signature" id="signature"></div>
+    <div>
+      <h1>Seguimiento Comunitario</h1>
+      <p>Tlacotepec de Benito Juárez · Herramienta comunitaria</p>
+    </div>
+  </div>
+  <nav class="tabs">
+    <button class="active" data-view="agebs">AGEBs</button>
+    <button data-view="pacientes">Pacientes</button>
+    <button data-view="enfermeria">Enfermería</button>
+    <button data-view="campanas">Vacunación</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- VISTA 1: AGEBS -->
+  <section class="view active" id="view-agebs">
+    <h2 class="section-title">Los 9 AGEBs</h2>
+    <p class="section-sub">Cabecera (localidad 0001) y Santo Nombre (localidad 0020). Toca un AGEB para editar sus datos o ir directo a su seguimiento.</p>
+
+    <div class="totals-strip" id="totals-strip"></div>
+
+    <div class="ageb-grid" id="ageb-grid"></div>
+  </section>
+
+  <!-- VISTA PACIENTES -->
+  <section class="view" id="view-pacientes">
+    <h2 class="section-title">Pacientes</h2>
+    <p class="section-sub">Ficha de datos por paciente. Esta información se guarda solo en este dispositivo.</p>
+
+    <div class="card">
+      <div class="row2">
+        <div>
+          <label>Nombre completo</label>
+          <input type="text" id="pt-nombre" placeholder="Ej. María Guadalupe Pérez López">
+        </div>
+        <div>
+          <label>Edad</label>
+          <input type="text" id="pt-edad" placeholder="Ej. 34">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>Sexo</label>
+          <select id="pt-sexo">
+            <option value="">Selecciona</option>
+            <option value="F">Femenino</option>
+            <option value="M">Masculino</option>
+          </select>
+        </div>
+        <div>
+          <label>Tipo de control</label>
+          <select id="pt-tipo">
+            <option value="cr">Paciente crónico</option>
+            <option value="em">Embarazada</option>
+            <option value="ns">Niño sano</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>AGEB</label>
+          <select id="pt-ageb"></select>
+        </div>
+        <div>
+          <label>Manzana</label>
+          <input type="text" id="pt-manzana" placeholder="Ej. 12">
+        </div>
+      </div>
+
+      <label>Dirección</label>
+      <input type="text" id="pt-direccion" placeholder="Calle, número, referencia">
+
+      <div class="row2">
+        <div>
+          <label>Teléfono (opcional)</label>
+          <input type="text" id="pt-telefono" placeholder="Ej. 244 123 4567">
+        </div>
+        <div>
+          <label>Próxima cita</label>
+          <input type="date" id="pt-fecha">
+        </div>
+      </div>
+
+      <label>Diagnóstico / condición</label>
+      <input type="text" id="pt-diagnostico" placeholder="Ej. Diabetes tipo 2, 28 SDG, esquema incompleto...">
+
+      <label>Notas clínicas</label>
+      <textarea id="pt-notas" placeholder="Tratamiento, medición de signos, evolución, esquema de vacunación, etc."></textarea>
+
+      <button class="btn" onclick="addPatient()">Guardar paciente</button>
+    </div>
+
+    <div class="card">
+      <label style="margin:0 0 8px;">Pacientes registrados</label>
+      <input type="text" id="pt-search" placeholder="Buscar por nombre, AGEB o manzana..." oninput="renderPatientList()" style="margin-bottom:10px;">
+      <div id="patient-list"></div>
+    </div>
+  </section>
+
+  <!-- VISTA 2: ENFERMERIA -->
+  <section class="view" id="view-enfermeria">
+    <h2 class="section-title">Seguimiento de Enfermería</h2>
+    <p class="section-sub">Control de pacientes crónicos, embarazadas y niño sano por AGEB. Usa manzana/referencia en vez de datos personales completos cuando sea posible.</p>
+
+    <div class="card">
+      <label>AGEB</label>
+      <select id="mk-ageb"></select>
+
+      <div class="row2">
+        <div>
+          <label>Tipo de control</label>
+          <select id="mk-tipo">
+            <option value="cr">Paciente crónico</option>
+            <option value="em">Embarazada</option>
+            <option value="ns">Niño sano</option>
+          </select>
+        </div>
+        <div>
+          <label>Manzana</label>
+          <input type="text" id="mk-manzana" placeholder="Ej. 12">
+        </div>
+      </div>
+
+      <div class="row2">
+        <div>
+          <label>Referencia (opcional)</label>
+          <input type="text" id="mk-ref" placeholder="Ej. Casa azul, calle Hidalgo">
+        </div>
+        <div>
+          <label>Próxima cita</label>
+          <input type="date" id="mk-fecha">
+        </div>
+      </div>
+
+      <label>Notas</label>
+      <textarea id="mk-notas" placeholder="Ej. Control mensual, glucosa en ayuno, semana de gestación, esquema de vacunación..."></textarea>
+
+      <button class="btn" onclick="addMarker()">Agregar registro</button>
+    </div>
+
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <label style="margin:0;">Registros — <span id="mk-ageb-label" class="mono"></span></label>
+      </div>
+      <div class="marker-list" id="marker-list"></div>
+    </div>
+  </section>
+
+  <!-- VISTA 3: VACUNACION -->
+  <section class="view" id="view-campanas">
+    <h2 class="section-title">Planeación de Campañas de Vacunación</h2>
+    <p class="section-sub">Selecciona AGEBs, biológicos, escuelas a visitar y fechas para cada campaña.</p>
+
+    <div class="card">
+      <label>Nombre de la campaña</label>
+      <input type="text" id="cp-nombre" placeholder="Ej. Semana Nacional de Vacunación — Abril">
+
+      <div class="row2">
+        <div>
+          <label>Fecha inicio</label>
+          <input type="date" id="cp-inicio">
+        </div>
+        <div>
+          <label>Fecha fin</label>
+          <input type="date" id="cp-fin">
+        </div>
+      </div>
+
+      <label>AGEBs a visitar</label>
+      <div class="chip-select" id="cp-agebs"></div>
+
+      <label>Biológicos a llevar</label>
+      <div class="chip-select" id="cp-biologicos"></div>
+      <div class="row2" style="margin-top:8px;">
+        <input type="text" id="cp-bio-custom" placeholder="Agregar otro biológico...">
+        <button class="btn ghost" style="align-self:start;" onclick="addCustomBio()">Agregar</button>
+      </div>
+
+      <label>Escuelas / puntos a visitar</label>
+      <textarea id="cp-escuelas" placeholder="Una por línea. Ej.&#10;Primaria Benito Juárez&#10;Preescolar Josefa Ortiz&#10;Casa de salud Santo Nombre"></textarea>
+
+      <label>Notas</label>
+      <textarea id="cp-notas" placeholder="Personal necesario, transporte, cadena de frío, etc."></textarea>
+
+      <button class="btn" onclick="addCampaign()">Guardar campaña</button>
+    </div>
+
+    <div class="card">
+      <label style="margin:0 0 8px;">Campañas planeadas</label>
+      <div id="campaign-list"></div>
+    </div>
+  </section>
+
+</main>
+
+<p class="save-note ui">Prototipo público: no captures datos personales ni clínicos reales. La información de prueba se guarda únicamente en este navegador.</p>
+
+<script>
+const AGEBS = [
+  {code:"0094", loc:"Cabecera", color:"var(--ageb-0094)"},
+  {code:"0183", loc:"Cabecera", color:"var(--ageb-0183)"},
+  {code:"0198", loc:"Cabecera", color:"var(--ageb-0198)"},
+  {code:"0200", loc:"Cabecera", color:"var(--ageb-0200)"},
+  {code:"0215", loc:"Cabecera", color:"var(--ageb-0215)"},
+  {code:"022A", loc:"Cabecera", color:"var(--ageb-022A)"},
+  {code:"0268", loc:"Santo Nombre", color:"var(--ageb-0268)"},
+  {code:"0338", loc:"Santo Nombre", color:"var(--ageb-0338)"},
+  {code:"0342", loc:"Santo Nombre", color:"var(--ageb-0342)"},
+];
+
+const BIO_CATALOG = ["BCG","Hepatitis B","Pentavalente","Rotavirus","Neumocócica","Influenza","SRP","SR","DPT","Td","VPH"];
+
+let agebData = {};   // { code: {poblacion, viviendas, manzanas} }
+let markers = [];    // [{id, ageb, tipo, manzana, ref, fecha, notas}]
+let campaigns = [];  // [{id, nombre, inicio, fin, agebs[], bios[], escuelas, notas}]
+let patients = [];   // [{id, nombre, edad, sexo, tipo, ageb, manzana, direccion, telefono, fecha, diagnostico, notas}]
+let selectedAgeb = AGEBS[0].code;
+let selectedBios = new Set();
+let selectedCampaignAgebs = new Set();
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+async function loadAll(){
+  try{
+    const value = localStorage.getItem('ageb-data');
+    agebData = value ? JSON.parse(value) : {};
+  }catch(e){ agebData = {}; }
+  try{
+    const value = localStorage.getItem('markers');
+    markers = value ? JSON.parse(value) : [];
+  }catch(e){ markers = []; }
+  try{
+    const value = localStorage.getItem('campaigns');
+    campaigns = value ? JSON.parse(value) : [];
+  }catch(e){ campaigns = []; }
+  try{
+    const value = localStorage.getItem('patients');
+    patients = value ? JSON.parse(value) : [];
+  }catch(e){ patients = []; }
+}
+
+async function savePatients(){
+  try{ localStorage.setItem('patients', JSON.stringify(patients)); }catch(e){ console.error(e); }
+}
+
+async function saveAgebData(){
+  try{ localStorage.setItem('ageb-data', JSON.stringify(agebData)); }catch(e){ console.error(e); }
+}
+async function saveMarkers(){
+  try{ localStorage.setItem('markers', JSON.stringify(markers)); }catch(e){ console.error(e); }
+}
+async function saveCampaigns(){
+  try{ localStorage.setItem('campaigns', JSON.stringify(campaigns)); }catch(e){ console.error(e); }
+}
+
+// ---------- Signature (header grid) ----------
+function renderSignature(){
+  const el = document.getElementById('signature');
+  el.innerHTML = AGEBS.map(a => `<span style="background:${a.color}"></span>`).join('');
+}
+
+// ---------- Tabs ----------
+document.querySelectorAll('nav.tabs button').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+btn.dataset.view).classList.add('active');
+  });
+});
+
+// ---------- Vista AGEBs ----------
+function renderAgebGrid(){
+  const grid = document.getElementById('ageb-grid');
+  grid.innerHTML = AGEBS.map(a=>{
+    const d = agebData[a.code] || {};
+    const cr = markers.filter(m=>m.ageb===a.code && m.tipo==='cr').length;
+    const em = markers.filter(m=>m.ageb===a.code && m.tipo==='em').length;
+    const ns = markers.filter(m=>m.ageb===a.code && m.tipo==='ns').length;
+    return `
+      <div class="ageb-card" style="--c:${a.color}" onclick="openAgebEditor('${a.code}')">
+        <div class="loc">${a.loc}</div>
+        <div class="code mono">${a.code}</div>
+        <div class="stats">
+          ${d.poblacion?`${d.poblacion} hab.`:'sin datos'} ${d.viviendas?`· ${d.viviendas} viv.`:''}
+        </div>
+        <div class="badges">
+          ${cr?`<span class="badge cr">${cr} crón.</span>`:''}
+          ${em?`<span class="badge em">${em} emb.</span>`:''}
+          ${ns?`<span class="badge ns">${ns} niño sano</span>`:''}
+        </div>
+      </div>`;
+  }).join('');
+
+  const totalPob = Object.values(agebData).reduce((s,d)=>s+(parseInt(d.poblacion)||0),0);
+  const totalViv = Object.values(agebData).reduce((s,d)=>s+(parseInt(d.viviendas)||0),0);
+  const totalCr = markers.filter(m=>m.tipo==='cr').length;
+  const totalEm = markers.filter(m=>m.tipo==='em').length;
+  const totalNs = markers.filter(m=>m.tipo==='ns').length;
+
+  document.getElementById('totals-strip').innerHTML = `
+    <div class="total-pill">Población capturada<b>${totalPob || '—'}</b></div>
+    <div class="total-pill">Crónicos en control<b>${totalCr}</b></div>
+    <div class="total-pill">Embarazadas<b>${totalEm}</b></div>
+    <div class="total-pill">Niño sano<b>${totalNs}</b></div>
+  `;
+}
+
+function openAgebEditor(code){
+  const current = agebData[code] || {};
+  const poblacion = prompt(`Población de AGEB ${code} (déjalo igual o edita):`, current.poblacion || '');
+  if(poblacion === null) return;
+  const viviendas = prompt(`Viviendas de AGEB ${code}:`, current.viviendas || '');
+  if(viviendas === null) return;
+  const manzanas = prompt(`Manzanas de AGEB ${code}:`, current.manzanas || '');
+  agebData[code] = {poblacion, viviendas, manzanas};
+  saveAgebData().then(renderAgebGrid);
+}
+
+// ---------- Vista Pacientes ----------
+function renderPatientAgebSelect(){
+  const sel = document.getElementById('pt-ageb');
+  sel.innerHTML = AGEBS.map(a=>`<option value="${a.code}">${a.code} — ${a.loc}</option>`).join('');
+}
+
+async function addPatient(){
+  const nombre = document.getElementById('pt-nombre').value.trim();
+  const edad = document.getElementById('pt-edad').value.trim();
+  const sexo = document.getElementById('pt-sexo').value;
+  const tipo = document.getElementById('pt-tipo').value;
+  const ageb = document.getElementById('pt-ageb').value;
+  const manzana = document.getElementById('pt-manzana').value.trim();
+  const direccion = document.getElementById('pt-direccion').value.trim();
+  const telefono = document.getElementById('pt-telefono').value.trim();
+  const fecha = document.getElementById('pt-fecha').value;
+  const diagnostico = document.getElementById('pt-diagnostico').value.trim();
+  const notas = document.getElementById('pt-notas').value.trim();
+
+  if(!nombre){ alert('Captura al menos el nombre del paciente.'); return; }
+
+  patients.push({id:uid(), nombre, edad, sexo, tipo, ageb, manzana, direccion, telefono, fecha, diagnostico, notas});
+  await savePatients();
+
+  ['pt-nombre','pt-edad','pt-manzana','pt-direccion','pt-telefono','pt-fecha','pt-diagnostico','pt-notas'].forEach(id=>{
+    document.getElementById(id).value='';
+  });
+  document.getElementById('pt-sexo').value='';
+
+  renderPatientList();
+  renderAgebGrid();
+}
+
+async function deletePatient(id){
+  patients = patients.filter(p=>p.id!==id);
+  await savePatients();
+  renderPatientList();
+  renderAgebGrid();
+}
+
+function renderPatientList(){
+  const q = (document.getElementById('pt-search').value || '').toLowerCase();
+  const el = document.getElementById('patient-list');
+  let list = patients.slice().sort((a,b)=> a.nombre.localeCompare(b.nombre));
+  if(q){
+    list = list.filter(p =>
+      p.nombre.toLowerCase().includes(q) ||
+      (p.ageb||'').toLowerCase().includes(q) ||
+      (p.manzana||'').toLowerCase().includes(q)
+    );
+  }
+  if(list.length===0){
+    el.innerHTML = `<div class="empty">No hay pacientes que coincidan.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(p=>`
+    <div class="patient-card">
+      <div>
+        <div class="p-name">${p.nombre}</div>
+        <div class="p-meta">
+          ${p.edad?`${p.edad} años · `:''}${p.sexo||''} ${p.tipo?`· <span class="m-tag ${p.tipo==='otro'?'':p.tipo}">${tipoLabel(p.tipo)}</span>`:''}
+          <br>AGEB ${p.ageb||'—'} ${p.manzana?`· Manzana ${p.manzana}`:''} ${p.direccion?`· ${p.direccion}`:''}
+          ${p.telefono?`<br>Tel: ${p.telefono}`:''} ${p.fecha?` · Próxima cita: ${p.fecha}`:''}
+          ${p.diagnostico?`<br><b>${p.diagnostico}</b>`:''}
+          ${p.notas?`<br>${p.notas}`:''}
+        </div>
+      </div>
+      <div class="p-right">
+        <button class="btn ghost" onclick="deletePatient('${p.id}')">quitar</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ---------- Vista Enfermería ----------
+function renderAgebSelect(){
+  const sel = document.getElementById('mk-ageb');
+  sel.innerHTML = AGEBS.map(a=>`<option value="${a.code}">${a.code} — ${a.loc}</option>`).join('');
+  sel.value = selectedAgeb;
+  sel.addEventListener('change', ()=>{ selectedAgeb = sel.value; renderMarkerList(); });
+}
+
+function tipoLabel(t){ return t==='cr'?'Crónico':t==='em'?'Embarazada':t==='ns'?'Niño sano':'Otro'; }
+
+async function addMarker(){
+  const ageb = document.getElementById('mk-ageb').value;
+  const tipo = document.getElementById('mk-tipo').value;
+  const manzana = document.getElementById('mk-manzana').value.trim();
+  const ref = document.getElementById('mk-ref').value.trim();
+  const fecha = document.getElementById('mk-fecha').value;
+  const notas = document.getElementById('mk-notas').value.trim();
+
+  if(!manzana && !ref){
+    alert('Agrega al menos la manzana o una referencia para poder ubicar el caso.');
+    return;
+  }
+
+  markers.push({id:uid(), ageb, tipo, manzana, ref, fecha, notas});
+  await saveMarkers();
+
+  document.getElementById('mk-manzana').value='';
+  document.getElementById('mk-ref').value='';
+  document.getElementById('mk-fecha').value='';
+  document.getElementById('mk-notas').value='';
+
+  selectedAgeb = ageb;
+  renderMarkerList();
+  renderAgebGrid();
+}
+
+async function deleteMarker(id){
+  markers = markers.filter(m=>m.id!==id);
+  await saveMarkers();
+  renderMarkerList();
+  renderAgebGrid();
+}
+
+function renderMarkerList(){
+  document.getElementById('mk-ageb-label').textContent = selectedAgeb;
+  const list = markers.filter(m=>m.ageb===selectedAgeb).sort((a,b)=> (a.fecha||'').localeCompare(b.fecha||''));
+  const el = document.getElementById('marker-list');
+  if(list.length===0){
+    el.innerHTML = `<div class="empty">Sin registros todavía en AGEB ${selectedAgeb}.</div>`;
+    return;
+  }
+  el.innerHTML = list.map(m=>`
+    <div class="marker-item">
+      <div class="m-left">
+        <span class="m-tag ${m.tipo}">${tipoLabel(m.tipo)}</span>
+        ${m.manzana?`Manzana ${m.manzana}`:''} ${m.ref?` · ${m.ref}`:''}
+        <div class="m-meta">${m.fecha?`Próxima cita: ${m.fecha}`:''} ${m.notas?` · ${m.notas}`:''}</div>
+      </div>
+      <button class="btn ghost" onclick="deleteMarker('${m.id}')">quitar</button>
+    </div>
+  `).join('');
+}
+
+// ---------- Vista Campañas ----------
+function renderCampaignChips(){
+  document.getElementById('cp-agebs').innerHTML = AGEBS.map(a=>`
+    <div class="chip" data-code="${a.code}" onclick="toggleCampaignAgeb('${a.code}')">${a.code}</div>
+  `).join('');
+  renderBioChips();
+}
+
+function renderBioChips(){
+  document.getElementById('cp-biologicos').innerHTML = BIO_CATALOG.map(b=>`
+    <div class="chip ${selectedBios.has(b)?'on':''}" onclick="toggleBio('${b}')">${b}</div>
+  `).join('');
+}
+
+function toggleBio(b){
+  if(selectedBios.has(b)) selectedBios.delete(b); else selectedBios.add(b);
+  renderBioChips();
+}
+
+function addCustomBio(){
+  const input = document.getElementById('cp-bio-custom');
+  const val = input.value.trim();
+  if(!val) return;
+  if(!BIO_CATALOG.includes(val)) BIO_CATALOG.push(val);
+  selectedBios.add(val);
+  input.value='';
+  renderBioChips();
+}
+
+function toggleCampaignAgeb(code){
+  if(selectedCampaignAgebs.has(code)) selectedCampaignAgebs.delete(code); else selectedCampaignAgebs.add(code);
+  document.querySelectorAll('#cp-agebs .chip').forEach(c=>{
+    c.classList.toggle('on', selectedCampaignAgebs.has(c.dataset.code));
+  });
+}
+
+async function addCampaign(){
+  const nombre = document.getElementById('cp-nombre').value.trim();
+  const inicio = document.getElementById('cp-inicio').value;
+  const fin = document.getElementById('cp-fin').value;
+  const escuelas = document.getElementById('cp-escuelas').value.trim();
+  const notas = document.getElementById('cp-notas').value.trim();
+
+  if(!nombre){ alert('Ponle un nombre a la campaña.'); return; }
+  if(selectedCampaignAgebs.size===0){ alert('Selecciona al menos un AGEB a visitar.'); return; }
+
+  campaigns.push({
+    id: uid(), nombre, inicio, fin,
+    agebs: Array.from(selectedCampaignAgebs),
+    bios: Array.from(selectedBios),
+    escuelas, notas
+  });
+  await saveCampaigns();
+
+  document.getElementById('cp-nombre').value='';
+  document.getElementById('cp-inicio').value='';
+  document.getElementById('cp-fin').value='';
+  document.getElementById('cp-escuelas').value='';
+  document.getElementById('cp-notas').value='';
+  selectedCampaignAgebs.clear();
+  selectedBios.clear();
+  document.getElementById('cp-bio-custom').value='';
+  renderCampaignChips();
+  renderCampaignList();
+}
+
+async function deleteCampaign(id){
+  campaigns = campaigns.filter(c=>c.id!==id);
+  await saveCampaigns();
+  renderCampaignList();
+}
+
+function renderCampaignList(){
+  const el = document.getElementById('campaign-list');
+  if(campaigns.length===0){
+    el.innerHTML = `<div class="empty">Aún no hay campañas planeadas.</div>`;
+    return;
+  }
+  el.innerHTML = campaigns.slice().reverse().map(c=>`
+    <div class="campaign-item">
+      <h3>${c.nombre}</h3>
+      <div class="c-date">${c.inicio||'?'} ${c.fin?`— ${c.fin}`:''}</div>
+      <div class="tag-row">${c.agebs.map(a=>`<span class="tg">AGEB ${a}</span>`).join('')}</div>
+      <div class="tag-row">${c.bios.map(b=>`<span class="tg">${b}</span>`).join('')}</div>
+      ${c.escuelas?`<div class="c-notes">${c.escuelas.replace(/\n/g,' · ')}</div>`:''}
+      ${c.notas?`<div class="c-notes">${c.notas}</div>`:''}
+      <button class="btn ghost" style="margin-top:8px;" onclick="deleteCampaign('${c.id}')">eliminar campaña</button>
+    </div>
+  `).join('');
+}
+
+// ---------- Init ----------
+async function init(){
+  renderSignature();
+  await loadAll();
+  renderAgebGrid();
+  renderPatientAgebSelect();
+  renderPatientList();
+  renderAgebSelect();
+  renderMarkerList();
+  renderCampaignChips();
+  renderCampaignList();
+}
+init();
+</script>
+
+</body>
+</html>
